@@ -1,0 +1,33 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Draw : MonoBehaviour
+{
+    private const int SAVE_POSITION_COUNT = 128*128;
+    [System.NonSerialized]
+    public List<Vector2> drawPostions = new List<Vector2>(SAVE_POSITION_COUNT);
+    // TODO:カメラをVR対応
+    private Camera cam;
+    private　const float TIME = 0.1f;
+    private float elapsedTime;
+
+    void Start()
+    {
+        cam = Camera.main;
+    }
+
+    void Update()
+    {
+        elapsedTime += Time.deltaTime;
+
+        // 最短でもTIME間隔でしか座標を記録しない。
+        if (elapsedTime >= TIME && Input.GetMouseButton(0) && drawPostions.Count <= SAVE_POSITION_COUNT) {
+            drawPostions.Add(cam.WorldToScreenPoint(Input.mousePosition));
+            elapsedTime = 0;
+            Debug.Log(cam.WorldToScreenPoint(Input.mousePosition));
+        } else {
+            drawPostions.Clear();
+        }
+    }
+}
