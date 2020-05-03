@@ -1,20 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System;
+﻿using UnityEngine;
 
 public class Draw : MonoBehaviour {
-    private const float INTERVAL_TIME = 0.005f;
     private const int RAY_DISTANCE = 3;
 
-    [System.NonSerialized]
-    private float elapsedTime;
     // ユーザが描いた描画領域のポイントを保存する。テクスチャのサイズで初期化される。
     private short[][] drewPos2D;
     public short[][] DrewPos2D { get => drewPos2D; private set => drewPos2D = value; }
 
     [SerializeField]
-    private GameObject magicCircleCanvas; // MagicCircleCavasインスタンスをセットする
+    private GameObject currentMagicCircleCanvas; // MagicCircleCavasインスタンスをセットする
+    [SerializeField]
+    private GameObject OtherMagicCircleCanvas; // 切り替えるMagicCircleCavasプレハブをセットする
     private Renderer magicCanvasRenderer;
     private Texture2D drawTexture;
     private Color[] drawPixels;
@@ -23,52 +19,34 @@ public class Draw : MonoBehaviour {
 
 
     void Start() {
-        this.SetTargetMagicCircle(this.magicCircleCanvas);
+        this.SetTargetMagicCircleCanvas(this.currentMagicCircleCanvas);
     }
 
     void Update() {
-        elapsedTime += Time.deltaTime;
-
-        // 最短でもINTERVAL_TIME間隔でしか座標を記録しない。
-        if (elapsedTime >= INTERVAL_TIME) {
-            if (this.NeedCreateRay()) {
-                var ray = this.CreateRay();
-                RaycastHit hit;
-                // MagicCircleCanvas == 8
-                int layerMask = LayerMask.GetMask(new string[] { LayerMask.LayerToName(8) });
-                if (Physics.Raycast(ray, out hit, RAY_DISTANCE, layerMask) && hit.collider.gameObject.GetInstanceID() == this.magicCanvasID) {
-                    // テクスチャの座標は左下がy=0で配列は0行目が左上なので上下を反転させて格納する。
-                    //int posY = (this.drawTexture.height - 1) - Mathf.FloorToInt(hit.textureCoord.y * this.drawTexture.height);
-                    //int posX = (Mathf.FloorToInt(hit.textureCoord.x * this.drawTexture.width));
-                    int posY = Mathf.FloorToInt(hit.textureCoord.y * this.drawTexture.height);
-                    int posX = Mathf.FloorToInt(hit.textureCoord.x * this.drawTexture.width);
-                    this.DrewPos2D[posY][posX] = 1;
-
-                    var hitPoint = new Vector2(hit.textureCoord.x * this.drawTexture.width, hit.textureCoord.y * this.drawTexture.height);
-                    this.drawPoint(hitPoint);
-                    this.updateTexture();
-
-                    //DebugLogger.Log(Mathf.CeilToInt(hit.textureCoord.y * this.drawTexture.height).ToString() + " : " + Mathf.CeilToInt(hit.textureCoord.x * this.drawTexture.width).ToString());
-                }
-
-                elapsedTime = 0;
-            }
-        }
+        this.DrawMagicCircle();
 
         // デバッグ用
         if (Input.GetKeyDown(KeyCode.A)) {
-            var pm = new PatternMatching(this.magicCircleCanvas.GetComponent<MagicCircle>(), this.drewPos2D);
+            var pm = new PatternMatching(this.currentMagicCircleCanvas.GetComponent<MagicCircle>(), this.drewPos2D);
             if (pm.IsMatch()) {
                 DebugLogger.Log("成功！");
             }
             else {
                 DebugLogger.Log("残念");
             }
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.B)) {
+            // 対象の魔法陣を別のものに切り替える。
+            this.SwitchMagicCircleCanvas(this.OtherMagicCircleCanvas);
+            return;
         }
 
         // デバッグ用
         if (Input.GetKeyDown(KeyCode.D)) {
             DebugLogger.Dump2D(this.DrewPos2D);
+            return;
         }
     }
 
@@ -107,12 +85,40 @@ public class Draw : MonoBehaviour {
         return result;
     }
 
-    void SetTargetMagicCircle(GameObject magicCircleCanvas) {
-        this.magicCanvasID = this.magicCircleCanvas.GetInstanceID();
+    void DrawMagicCircle() {
+        if (this.NeedCreateRay()) {
+            var ray = this.CreateRay();
+            RaycastHit hit;
+            // MagicCircleCanvas == 8
+            int layerMask = LayerMask.GetMask(new string[] { LayerMask.LayerToName(8) });
+            // FIXME: 別の魔法陣の後ろに生成すると手前の魔法陣が邪魔になって生成した方に線がかけないのでRaycastAllを使うように修正する。
+            if (Physics.Raycast(ray, out hit, RAY_DISTANCE, layerMask) && hit.collider.gameObject.GetInstanceID() == this.magicCanvasID) {
+                int posY = Mathf.FloorToInt(hit.textureCoord.y * this.drawTexture.height);
+                int posX = Mathf.FloorToInt(hit.textureCoord.x * this.drawTexture.width);
+                this.DrewPos2D[posY][posX] = 1;
+
+                var hitPoint = new Vector2(hit.textureCoord.x * this.drawTexture.width, hit.textureCoord.y * this.drawTexture.height);
+                this.drawPoint(hitPoint);
+                this.updateTexture();
+            }
+        }
+    }
+
+    // 現在の魔法陣を削除して別の魔法陣を生成する。
+    void SwitchMagicCircleCanvas(GameObject target) {
+        Destroy(this.currentMagicCircleCanvas);
+        var instance = Instantiate(target, new Vector3(0, 0, 0), Quaternion.identity);
+        this.SetTargetMagicCircleCanvas(instance);
+    }
+
+    // 描く魔法陣を切り替える
+    void SetTargetMagicCircleCanvas(GameObject targetMagicCircleCanvas) {
+        this.magicCanvasID = targetMagicCircleCanvas.GetInstanceID();
 
         // 塗りつぶした場所を表示する用テクスチャをセットする
-        this.magicCanvasRenderer = this.magicCircleCanvas.GetComponent<Renderer>();
-        var canvasTexture = (Texture2D)this.magicCanvasRenderer.material.mainTexture; // 複製されているので自分で破棄しないとリークする
+        this.magicCanvasRenderer = targetMagicCircleCanvas.GetComponent<Renderer>();
+        // FIXME: 複製されているので自分で破棄しないとメモリリークする
+        var canvasTexture = (Texture2D)this.magicCanvasRenderer.material.mainTexture;
         DebugLogger.Log(canvasTexture.width.ToString() + " : " + canvasTexture.height.ToString());
         var magicCanvasPixels = canvasTexture.GetPixels();
         this.drawPixels = new Color[magicCanvasPixels.Length];
@@ -123,9 +129,12 @@ public class Draw : MonoBehaviour {
         this.drawTexture.Apply();
         this.magicCanvasRenderer.material.mainTexture = this.drawTexture;
 
+        // ユーザが魔法陣をなぞった跡を保存する配列を作る
         this.DrewPos2D = new short[canvasTexture.height][];
         for (int i = 0; i < this.DrewPos2D.Length; i++) {
             this.DrewPos2D[i] = new short[canvasTexture.width];
         }
+
+        this.currentMagicCircleCanvas = targetMagicCircleCanvas;
     }
 }

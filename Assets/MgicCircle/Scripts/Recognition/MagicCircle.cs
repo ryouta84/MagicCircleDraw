@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MagicCircle : MonoBehaviour {
     private Renderer magicCanvasRenderer;
     // 正解の図形を2次元配列表現したデータ
     private short[][] template;
     public short[][] Template { get => template; private set => template = value; }
-
     // 正解の閾値
     [SerializeField]
     private int successThreshold = 0;
@@ -16,7 +13,7 @@ public class MagicCircle : MonoBehaviour {
     void Start() {
         this.magicCanvasRenderer = this.gameObject.GetComponent<Renderer>();
         var canvasTexture = (Texture2D)this.magicCanvasRenderer.material.mainTexture; // 複製されているので自分で破棄しないとメモリリークする
-        this.GenerateShape2D(canvasTexture.GetPixels(), canvasTexture.height, canvasTexture.width);
+        this.GenerateArray2D(canvasTexture.GetPixels(), canvasTexture.height, canvasTexture.width);
 
         DebugLogger.Dump2D(this.Template);
     }
@@ -25,8 +22,8 @@ public class MagicCircle : MonoBehaviour {
 
     }
 
-    // マッチング対象の形を2次元配列で表現したデータを作る。人間が出力した値を見ると上下反対にみえる。
-    void GenerateShape2D(Color[] colors, int height, int width) {
+    // マッチング対象の形を2次元配列で表現したデータを作る。人間が出力した値を見ると上下反対にみえるが判定処理的には問題ない。
+    void GenerateArray2D(Color[] colors, int height, int width) {
         var result = new short[height][];
         for (int y = 0; y < result.Length; y++) {
             result[y] = new short[width];

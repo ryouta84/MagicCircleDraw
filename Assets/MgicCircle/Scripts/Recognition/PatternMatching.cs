@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PatternMatching {
     public MagicCircle MagicCircle { get; set; }
@@ -20,7 +19,7 @@ public class PatternMatching {
 
         switch (mode) {
             case Mode.SAD:
-                var value = SAD();
+                var value = this.SAD();
                 DebugLogger.Log("result = " + value);
                 result = value <= this.MagicCircle.SuccessThreshold;
                 break;
