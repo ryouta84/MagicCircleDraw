@@ -69,7 +69,7 @@ public class Draw : MonoBehaviour {
     }
 
     // TODO: 最終的にはVR対応する
-    bool NeedCreateRay() {
+    virtual protected bool NeedCreateRay() {
         if (Input.GetMouseButton(0)) {
             return true;
         }
@@ -78,7 +78,7 @@ public class Draw : MonoBehaviour {
     }
 
     // TODO: 最終的にはVR対応する
-    Ray CreateRay() {
+    virtual protected Ray CreateRay() {
         // Screenのマウスの位置から空間に向けてレイ(光線)を放つ
         var result = Camera.main.ScreenPointToRay(Input.mousePosition);
         Debug.DrawRay(result.origin, result.direction * RAY_DISTANCE, Color.red, 20, false);
@@ -105,7 +105,7 @@ public class Draw : MonoBehaviour {
     }
 
     // 現在の魔法陣を削除して別の魔法陣を生成する。
-    void SwitchMagicCircleCanvas(GameObject target) {
+    public void SwitchMagicCircleCanvas(GameObject target) {
         Destroy(this.currentMagicCircleCanvas);
         var instance = Instantiate(target, new Vector3(0, 0, 0), Quaternion.identity);
         this.SetTargetMagicCircleCanvas(instance);
