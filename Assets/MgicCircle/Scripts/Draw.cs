@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+
+using UnityEngine;
 
 public class Draw : MonoBehaviour {
     private const int RAY_DISTANCE = 3;
@@ -10,11 +12,13 @@ public class Draw : MonoBehaviour {
     [SerializeField]
     private GameObject currentMagicCircleCanvas; // MagicCircleCavasインスタンスをセットする
     [SerializeField]
-    private GameObject OtherMagicCircleCanvas; // 切り替えるMagicCircleCavasプレハブをセットする
+    private GameObject otherMagicCircleCanvas; // 切り替えるMagicCircleCavasプレハブをセットする
     private Renderer magicCanvasRenderer;
     private Texture2D drawTexture;
     private Color[] drawPixels;
-    private int brushSize = 0;
+    [SerializeField]
+    private int brushSizeOffset = 0;
+    public int BrushSizeOffset { get => brushSizeOffset; set => brushSizeOffset = value; }
     private int magicCanvasID = 0;
 
 
@@ -39,7 +43,7 @@ public class Draw : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.B)) {
             // 対象の魔法陣を別のものに切り替える。
-            this.SwitchMagicCircleCanvas(this.OtherMagicCircleCanvas);
+            this.SwitchMagicCircleCanvas(this.otherMagicCircleCanvas);
             return;
         }
 
@@ -51,18 +55,27 @@ public class Draw : MonoBehaviour {
     }
 
     // brushSize分のピクセルを塗りつぶす
-    void drawPoint(Vector2 hitPoint) {
-        for (int x = (int)(hitPoint.x - this.brushSize / 2); x < hitPoint.x + this.brushSize; x++) {
-            for (int y = (int)(hitPoint.y - this.brushSize / 2); y < hitPoint.y + this.brushSize; y++) {
-                if (x >= 0 && y >= 0) {
-                    this.drawPixels.SetValue(Color.green, (int)x + this.drawTexture.width * (int)y);
-                }
-            }
+    void DrawPoint(List<Vector2> points) {
+        foreach (var point in points) {
+            this.drawPixels.SetValue(Color.green, (int) point.x + this.drawTexture.height * (int) point.y);
         }
     }
 
+    // ブラシサイズ込みの座標を返す
+    List<Vector2> BrushDrawPoints(Vector2 center) {
+        var result = new List<Vector2>();
+        for (int x = (int)center.x - this.brushSizeOffset; x <= center.x + this.brushSizeOffset; x++) {
+            for (int y = (int)center.y - this.brushSizeOffset; y <= center.y + this.brushSizeOffset; y++) {
+                if (x <= this.drawTexture.width && y <= this.drawTexture.height) {
+                    result.Add(new Vector2(x, y));
+                }
+            }
+        }
+        return result;
+    }
+
     // 描いた結果のテクスチャを反映
-    void updateTexture() {
+    void UpdateTexture() {
         this.drawTexture.SetPixels(this.drawPixels);
         this.drawTexture.Apply();
         this.magicCanvasRenderer.material.mainTexture = this.drawTexture;
@@ -85,21 +98,27 @@ public class Draw : MonoBehaviour {
         return result;
     }
 
+    // ユーザーが描いた魔法陣を保存する
     void DrawMagicCircle() {
         if (this.NeedCreateRay()) {
             var ray = this.CreateRay();
             RaycastHit hit;
-            // MagicCircleCanvas == 8
+            // レイヤー: MagicCircleCanvas == 8
             int layerMask = LayerMask.GetMask(new string[] { LayerMask.LayerToName(8) });
             // FIXME: 別の魔法陣の後ろに生成すると手前の魔法陣が邪魔になって生成した方に線がかけないのでRaycastAllを使うように修正する。
             if (Physics.Raycast(ray, out hit, RAY_DISTANCE, layerMask) && hit.collider.gameObject.GetInstanceID() == this.magicCanvasID) {
                 int posY = Mathf.FloorToInt(hit.textureCoord.y * this.drawTexture.height);
                 int posX = Mathf.FloorToInt(hit.textureCoord.x * this.drawTexture.width);
-                this.DrewPos2D[posY][posX] = 1;
+                var hitPoint = new Vector2(posX, posY);
 
-                var hitPoint = new Vector2(hit.textureCoord.x * this.drawTexture.width, hit.textureCoord.y * this.drawTexture.height);
-                this.drawPoint(hitPoint);
-                this.updateTexture();
+                var drawPoints = this.BrushDrawPoints(hitPoint);
+                foreach (var point in drawPoints) {
+                    // FIXME: 一番端に描こうとすると境界外例外が出る
+                    this.DrewPos2D[(int)point.y][(int)point.x] = 1;
+                }
+
+                this.DrawPoint(drawPoints);
+                this.UpdateTexture();
             }
         }
     }
