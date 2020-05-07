@@ -121,6 +121,85 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &74678126
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4485093580648346458, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9d17a5a634ff84934b68e14a97f5741c, type: 2}
+    - target: {fileID: 4485093580648346460, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: m_Name
+      value: MagicCircleTest
+      objectReference: {fileID: 0}
+    - target: {fileID: 8978511558652549643, guid: defe21a5ab9df49e1bbd627118acb721,
+        type: 3}
+      propertyPath: successThreshold
+      value: 4000
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: defe21a5ab9df49e1bbd627118acb721, type: 3}
 --- !u!1001 &236962923
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -131,7 +210,7 @@ PrefabInstance:
     - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -2.627
       objectReference: {fileID: 0}
     - target: {fileID: 4485093580648346456, guid: defe21a5ab9df49e1bbd627118acb721,
         type: 3}
@@ -365,13 +444,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -2}
+  m_LocalPosition: {x: -2.2, y: 0, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1887392037 stripped
+--- !u!1 &1268966586 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4485093580648346460, guid: defe21a5ab9df49e1bbd627118acb721,
     type: 3}
@@ -459,7 +538,7 @@ PrefabInstance:
         type: 3}
       propertyPath: currentMagicCircleCanvas
       value: 
-      objectReference: {fileID: 1887392037}
+      objectReference: {fileID: 1268966586}
     - target: {fileID: 5459792294177900748, guid: 2ace67119b4ec6241ab6fc783cac12e7,
         type: 3}
       propertyPath: otherMagicCircleCanvas
